@@ -2,12 +2,39 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <script src="https://d3js.org/d3.v5.min.js"></script>
+
     <title></title>
   </head>
   <body>
-  <h1>Project 3</h1>
-  <script src="script.js">
+  <h1>Kentucky Schools</h1>
+  <svg id="map"></svg>
+  <svg id="menu"></svg>
+  <svg id="scale"></svg>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="script2.js"></script>
+
+  <style>
+  @import url('https://fonts.googleapis.com/css?family=Rubik');
+
+  body{
+    /*background-color:AliceBlue;*/
+    font-family: 'Rubik', sans-serif;
+  }
+  #menu{
+    position:fixed;
+    left:800px;
+  }
+
+  #scale{
+    position:fixed;
+    top:500px;
+    left:0px;
+    width:800px;
+    height:200px;
+    border-color:black;
+  }
+
+  </style>
 
   </body>
 </html>
