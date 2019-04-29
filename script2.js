@@ -18,8 +18,10 @@ drawMap(data[0])
 
 var drawMap=function(geoData){
   d3.select("#scale").selectAll("*").remove()
+  d3.selectAll(".menu2").remove()
+  d3.selectAll("#map").selectAll("*").remove()
   var view="map"
-  console.log(geoData, "data")
+
 
 var screen={width:800, height:400};
 
@@ -63,6 +65,7 @@ svg.selectAll("path")
   })
 
 
+
   var menuWidth="200"
   var menuHeight="450"
 
@@ -74,15 +77,16 @@ svg.selectAll("path")
 var choices=["4-year Graduation Rate", "Attendance Rate", "Average ACT Score",
 "College/Career Readiness Percentage",
 "Total Revenue Per Pupil", "Average Teacher Salary",
-"Average Principal Salary", "View Map/Clear Map", "View Scatterplot"]
+"Average Principal Salary", "Clear Map", "View Scatterplot"]
 
 var colors=["lightgray", "lightgray", "lightgray", "lightgray",
-"lightgray", "lightgray", "lightgray", "slategray", "slategray"]
+"lightgray", "lightgray", "lightgray", "lightgray", "lightgray"]
 
 menu.selectAll("rect")
     .data(choices)
     .enter()
     .append("rect")
+    .classed("menu1", true)
     .attr("width", menuWidth)
     .attr("height", menuHeight/choices.length)
     .attr("y", function(d,i){
@@ -93,18 +97,19 @@ menu.selectAll("rect")
     })
     .on("mouseover",function(d){
       d3.select(this)
-        .style("stroke", "gray")
-        .style("stroke-width", "10")
+        .style("fill","white")
     })
     .on("mouseout", function(d){
       d3.select(this)
-      .style("stroke", "none")
+      .style("fill", "lightgray")
 
     })
     .on("click", function(d){
-    //  d3.select(this)
-      //  .style("stroke", "blue")
-        //.style("stroke-width","20")
+      d3.selectAll("rect")
+      .style("stroke", "none")
+    d3.select(this)
+      .style("stroke", "gray")
+      .style("stroke-width", "10")
       d3.selectAll(".path").remove()
   //    d3.selectAll(".legend").remove()
       var yPosition=parseFloat(d3.select(this).attr("y"))
@@ -141,6 +146,7 @@ menu.selectAll("text")
     .data(choices)
     .enter()
     .append("text")
+    .classed("menu1", true)
     .attr("y", function(d,i){
       return ((menuHeight/choices.length)*(i))+(menuHeight/choices.length/2+5)})
     .attr("x", 5)
@@ -423,13 +429,10 @@ if(type=="AVG_PRINCIPAL_SALARY"){
 
 var updateLegend=function(geoData, type){
   d3.select("#scale").selectAll("*").remove()
-  console.log("here1")
-  //d3.select("#scale").selectAll("text").style("fill", "yellow")
-  //d3.select("#scale").selectAll("rect").style("fill", "purple")
+
   var width="100";
   var height="25";
   if (type=="GRAD_RATE"){
-    console.log("here2")
     var colors=d3.scaleSequential(d3.interpolateBlues)
     .domain([100,85])
   var legendBoxes=["85", "87","90","93", "95","98", "100"]
@@ -663,9 +666,312 @@ var updateLegend=function(geoData, type){
 
   }
 }
-
-var drawScatter=function(geoData){
-  d3.select("#scale").selectAll("*").remove()
   var view="scatter"
-  console.log(geoData, "Geodata")
+  var clickCount=0
+
+var drawScatter=function(data){
+  d3.selectAll(".menu1").remove()
+  d3.selectAll(".scatter").remove()
+  d3.selectAll("#selectX").attr("enabled", "enabled")
+  d3.selectAll("#selectY").attr("enabled", "enabled")
+
+  var choices=["Clear Scatterplot", "View Map"]
+
+  var colors=["lightgray", "lightgray"]
+
+  var menuWidth="200"
+  var menuHeight="100"
+
+  var menu=d3.select("#menu")
+            .attr("width", menuWidth)
+            .attr("height", menuHeight)
+
+  menu.selectAll("rect")
+      .data(choices)
+      .enter()
+      .append("rect")
+      .classed("menu2", true)
+      .attr("width", menuWidth)
+      .attr("height", menuHeight/choices.length)
+      .attr("y", function(d,i){
+        return ((menuHeight/choices.length)*(i))})
+      .attr("x", 0)
+      .style("fill", function(d,i){
+        return colors[i]
+      })
+      .on("mouseover",function(d){
+        d3.select(this)
+          .style("fill","white")
+      })
+      .on("mouseout", function(d){
+        d3.select(this)
+        .style("fill", "lightgray")
+
+      })
+      .on("click", function(d){
+
+      clickCount+=1
+       if(clickCount==1||clickCount==2){
+       d3.select(this)
+         .style("stroke", "gray")
+         .style("stroke-width", "10")
+         .classed("selected", true)
+       }
+
+      var yPosition=parseFloat(d3.select(this).attr("y"))
+      //console.log(yPosition, "yp")
+      // console.log(2*menuHeight/choices.length, "th")
+      if(yPosition<(1*menuHeight/choices.length))
+      {menu.selectAll("rect").style("stroke", "none");
+      drawScatter(data)}
+
+      else if(yPosition<=50)
+      {console.log(yPosition)
+      drawMap(data)}
+      })
+
+  menu.selectAll("text")
+      .data(choices)
+      .enter()
+      .append("text")
+      .classed("menu2", true)
+      .attr("y", function(d,i){
+        return ((menuHeight/choices.length)*(i))+(menuHeight/choices.length/2+5)})
+      .attr("x", 5)
+      .text(function(d){
+        return d
+      })
+
+      choices=["4-year Graduation Rate", "Attendance Rate", "Avg ACT Score",
+      "CCR %",
+      "Total Rev Per Pupil", "Avg Teacher Salary",
+      "Avg Principal Salary"]
+
+d3.select("#selectX")
+    .selectAll("option")
+    .data(choices)
+    .enter()
+    .append("option")
+    .attr("label", function(d){return d})
+    .on("change", function(d){
+      d3.select(this)
+      console.log(this, "this!")
+    })
+
+d3.select("#selectY")
+  .selectAll("option")
+  .data(choices)
+  .enter()
+  .append("option")
+  .attr("label", function(d){return d})
+
+
+var screen={width:800, height:400};
+var margins={top:10, bottom:100, left:100, right:40}
+
+var svg=d3.select("#map")
+            .attr("width", screen.width)
+            .attr("height", screen.height);
+
+d3.select("#scale").selectAll("*").remove()
+
+var plot=svg.append("g")
+            .attr("width", screen.width-margins.left-margins.right)
+            .attr("height", screen.height-margins.top-margins.bottom)
+            .attr("transform", "translate("+margins.left+","+margins.top+")")
+
+
+
+
+  // var xScale=d3.scaleLinear()
+  //               .domain([40000,65000])
+  //               .range([0, screen.width-margins.left-margins.right])
+  //
+  // var yScale=d3.scaleLinear()
+  //             .domain([61000,120000])
+  //             .range([screen.height-margins.top-margins.bottom,0])
+  //
+  //
+  //
+  // var dots=plot.selectAll("g")
+  //             .data(data.features)
+  //             .enter()
+  //             .append("g")
+  //
+  // dots.selectAll("circle")
+  //     .data(data.features)
+  //     .enter()
+  //     .append("circle")
+  //     .classed("scatter", true)
+  //     .attr("cx", function(d,i){return xScale(d.properties.info.AVG_TEACHER_SALARY)})
+  //     .attr("cy", function(d,i){return yScale(d.properties.info.AVG_PRINCIPAL_SALARY)})
+  //     .attr("r","5")
+  //     .attr("fill", "green")
+  //     .on("mouseover", function(d){
+  //       d3.select(this)
+  //       .attr("r","8").attr("fill", "blue")
+  //       plot.append("text")
+  //       .attr("id", "tooltip")
+  //       .attr("x", 30)
+  //       .attr("y", 40)
+  //       .attr("font-size", "20px")
+  //       .attr("fill", "black")
+  //       .text(d.properties.NAME+(": ")+d.properties.info.AVG_TEACHER_SALARY+(",")+d.properties.info.AVG_PRINCIPAL_SALARY)
+  //     })
+  //     .on("mouseout", function(d){
+  //       d3.selectAll("#tooltip").remove()
+  //       d3.select(this).attr("r", "5").attr("fill", "green")
+  //     })
+  //
+  //
+  //
+  //     console.log()
+var typeX="GRAD_RATE"
+var typeY="GRAD_RATE"
+var x=[]
+var y=[]
+var counties=[]
+data.features.forEach(function(d){
+  x.push(d.properties.info.GRAD_RATE)
+})
+data.features.forEach(function(d){
+  y.push(d.properties.info.GRAD_RATE)
+})
+data.features.forEach(function(d){
+  counties.push(d.properties.NAME)
+})
+var coordinates=[x,y, counties]
+
+updateScatter (screen, margins, coordinates, typeX, typeY)
+
+}
+
+var updateScatter=function(screen,margins,coordinates, typeX, typeY){
+var x=[];
+var y=[];
+coordinates[0].forEach(function(d){x.push(parseFloat(d))});
+coordinates[1].forEach(function(d){y.push(parseFloat(d))});
+var xMax=parseFloat(d3.max(d3.values(x)));
+var xMin=parseFloat(d3.min(d3.values(x)));
+var yMax=parseFloat(d3.max(d3.values(y)));
+var yMin=parseFloat(d3.min(d3.values(y)));
+
+var longList=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+21, 22, 23, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70,
+71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
+91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108,
+109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+var newCoordinates=longList.map(function(d,i){
+  return {
+    x:coordinates[0][i],
+    y:coordinates[1][i],
+    county:coordinates[2][i]
+  }
+})
+
+;
+
+
+xScale=d3.scaleLinear()
+        .domain([(xMin), (xMax)])
+        .range([0, screen.width-margins.left-margins.right])
+
+yScale=d3.scaleLinear()
+        .domain([yMin, yMax])
+        .range([screen.height-margins.top-margins.bottom,0])
+
+svg=d3.select("#map")
+      .attr("width", "800")
+      .attr("height", "400")
+
+var plot2=svg.append("g")
+                    .attr("width", screen.width-margins.left-margins.right)
+                    .attr("height", screen.height-margins.top-margins.bottom)
+                    .classed("plot", true)
+                    .attr("transform", "translate("+margins.left+","+margins.top+")")
+
+var dots=plot2.selectAll("g")
+              .data(newCoordinates)
+              .enter()
+              .append("g")
+
+dots.selectAll("circle")
+    .data(newCoordinates)
+    .enter()
+    .append("circle")
+    .attr("cx", function(d){
+      //console.log(xScale(parseInt(d.x)), "xvalues")
+      return xScale(parseFloat(d.x))
+    })
+    .attr("cy", function(d){
+    //  console.log(yScale(parseInt(d.y)), "yvalues")
+      return yScale(parseFloat(d.y))})
+    .attr("r","5")
+    .attr("fill", d3.interpolateBlues([.75]))
+    .on("mouseover", function(d){
+        d3.select(this)
+          .attr("r","8").attr("fill", d3.interpolateBlues([.95]))
+
+        plot2.append("text")
+            .attr("id", "tooltip")
+            .attr("x", 30)
+            .attr("y", 40)
+            .attr("font-size", "20px")
+            .attr("fill", "black")
+            .text(function(newCoordinates){
+              return d.county
+            })
+            })
+      .on("mouseout", function(d){
+            d3.selectAll("#tooltip").remove()
+            d3.select(this).attr("r", "5").attr("fill", d3.interpolateBlues([.75]))
+            })
+
+      var xA=screen.height-margins.bottom;
+      var xAxis=d3.axisBottom(xScale)
+      svg.append("g").classed("xAxis", true)
+                      .call(xAxis)
+                      .attr("transform", "translate("+margins.left+','+xA+")");
+
+      var yA=margins.left-10
+      var yAxis=d3.axisLeft(yScale);
+      svg.append("g").classed("yAxis", true)
+                    .call(yAxis)
+                    .attr("transform", "translate("+yA+","+"10"+")")
+
+      var choices=["4-year Graduation Rate", "Attendance Rate", "Average ACT Score",
+      "College/Career Readiness Percentage",
+      "Total Revenue Per Pupil", "Average Teacher Salary",
+      "Average Principal Salary"]
+
+      svg.append("text")
+          .attr("x", "400")
+          .attr("y", "350")
+          .attr("text-anchor", "middle")
+          .text(function(d){
+            if (typeX=="GRAD_RATE"){return "Graduation Rate"}
+            else if (typeX=="ATT_RATE"){return "Attendance Rate"}
+            else if (typeX=="AVG_ACT"){return "Average ACT Score"}
+            else if (typeX=="CCR"){return "College/Career Readiness Percentage"}
+            else if (typeX=="TOT_REV_PER_PUPIL"){return "Total Revenue Per Pupil"}
+            else if (typeX=="AVG_TEACHER_SALARY"){return "Average Teacher Salary"}
+            else if (typeX=="AVG_PRINCIPAL_SALARY"){return "Average Principal Salary"}
+            })
+      svg.append("text")
+          .attr("x", "400")
+          .attr("y", "350")
+          .attr("transform", "translate(0,70) rotate(-90,"+(margins.left-20)+","+((screen.height/2+200))+")")
+          .attr("text-anchor", "middle")
+          .text(function(d){
+            if (typeX=="GRAD_RATE"){return "Graduation Rate"}
+            else if (typeY=="ATT_RATE"){return "Attendance Rate"}
+            else if (typeY=="AVG_ACT"){return "Average ACT Score"}
+            else if (typeY=="CCR"){return "College/Career Readiness Percentage"}
+            else if (typeY=="TOT_REV_PER_PUPIL"){return "Total Revenue Per Pupil"}
+            else if (typeY=="AVG_TEACHER_SALARY"){return "Average Teacher Salary"}
+            else if (typeY=="AVG_PRINCIPAL_SALARY"){return "Average Principal Salary"}
+            })
+
+
 }
