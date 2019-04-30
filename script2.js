@@ -1,6 +1,7 @@
 var geoP=d3.json("kentuckyGeo.json")
 var dataP=d3.csv("schoolData2.csv")
 
+//Create a dictionary of county information and synthesize that with geodata
 Promise.all([geoP, dataP]).then(function(data){
 
 countyDict={}
@@ -15,11 +16,14 @@ data[0].features.forEach(function(d){
 drawMap(data[0])
 
 })
-
+//Draw map
 var drawMap=function(geoData){
+  //Clear screen of current visualization/options
   d3.select("#scale").selectAll("*").remove()
   d3.selectAll(".menu2").remove()
   d3.selectAll("#map").selectAll("*").remove()
+  d3.selectAll("#selectX").remove()
+  d3.selectAll("#selectY").remove()
   var view="map"
 
 
@@ -65,7 +69,7 @@ svg.selectAll("path")
   })
 
 
-
+//Create sidebar menu
   var menuWidth="200"
   var menuHeight="450"
 
@@ -167,7 +171,7 @@ var updateMap=function(data, type, svg){
   var path=d3.geoPath()
               .projection(projection)
 
-
+//If statements to update map based on selection
   if (type=="GRAD_RATE")
   {
     var colors=d3.scaleSequential(d3.interpolateBlues)
@@ -428,7 +432,7 @@ if(type=="AVG_PRINCIPAL_SALARY"){
 }
 
 }
-
+//Change legend based on type selected
 var updateLegend=function(geoData, type){
   d3.select("#scale").selectAll("*").remove()
 
@@ -668,19 +672,17 @@ var updateLegend=function(geoData, type){
 
   }
 }
-//  var view="scatter"
-//  var clickCount=0
-
+//Draw scatterplot - initializes with x and y graduation rates
 var drawScatter=function(data){
   d3.selectAll(".menu1").remove()
   d3.selectAll(".scatter").remove()
-  d3.selectAll("#selectX").attr("enabled", "enabled")
-  d3.selectAll("#selectY").attr("enabled", "enabled")
+
 
   var choices=["Reset Scatterplot", "View Map"]
 
   var colors=["lightgray", "lightgray"]
 
+//create scatterplot menu
   var menuWidth="200"
   var menuHeight="100"
 
@@ -716,11 +718,15 @@ var drawScatter=function(data){
          .style("stroke-width", "10")
          .classed("selected", true)
 
+         d3.select("#selectX").remove()
+         d3.select("#selectY").remove()
+
 
       var yPosition=parseFloat(d3.select(this).attr("y"))
 
       if(yPosition<(1*menuHeight/choices.length))
       {menu.selectAll("rect").style("stroke", "none");
+
       drawScatter(data)}
 
       else if(yPosition<=50)
@@ -740,20 +746,13 @@ var drawScatter=function(data){
         return d
       })
 
-      // choices=["4-year Graduation Rate", "Attendance Rate", "Avg ACT Score",
-      // "CCR %",
-      // "Total Rev Per Pupil", "Avg Teacher Salary",
-      // "Avg Principal Salary"]
-
+//Create dropdown
       choices=["GRAD_RATE", "ATT_RATE", "AVG_ACT", "CCR",
     "TOT_REV_PER_PUPIL", "AVG_TEACHER_SALARY", "AVG_PRINCIPAL_SALARY"]
 
 var dropdownChangeX=function(){
   var typeX=d3.select(this).property("value")
   var typeY=d3.select("#selectY").property("value")
-  //var typeY1=document.getElementById("#yLabel")
-  //console.log(typeY1, "if this is graduation rate i'll cry")
-  //var typeY="GRAD_RATE"
   var x=[]
   var y=[]
   var counties=[]
@@ -788,7 +787,7 @@ var dropdownChangeX=function(){
   })
   var coordinates=[x,y, counties]
 
-
+//update scatterplot based on dropdown selections
   updateScatter (screen, margins, coordinates, typeX, typeY)
 }
 
@@ -834,11 +833,10 @@ var dropdownChangeY=function(){
 updateScatter (screen, margins, coordinates, typeX, typeY)
 }
 
-var dropdownX=d3.select("#selectX")
-    //.insert("select", "#scale")
-    .on("change", dropdownChangeX)
-
-
+var dropdownX=d3.select("body")
+.append("select")
+.attr("id", "selectX")
+.on("change", dropdownChangeX)
 
 dropdownX.selectAll("option")
     .data(choices)
@@ -846,16 +844,18 @@ dropdownX.selectAll("option")
     .append("option")
     .attr("value", function(d){return d})
     .attr("label",function(d){
-        if(d=="GRAD_RATE") {return "Graduation Rate"}
-        if(d=="ATT_RATE"){return "Attendance Rate"}
-        if(d=="AVG_ACT"){return "Average ACT"}
-        if(d=="CCR"){return "College/Career Readiness"}
-        if(d=="TOT_REV_PER_PUPIL"){return "Total Revenue Per Pupil"}
-        if(d=="AVG_TEACHER_SALARY"){return "Average Teacher Salary"}
-        if(d=="AVG_PRINCIPAL_SALARY"){return "Average Principal Salary"}})
+        if(d=="GRAD_RATE") {return "X-axis: Graduation Rate"}
+        if(d=="ATT_RATE"){return "X-axis: Attendance Rate"}
+        if(d=="AVG_ACT"){return "X-axis: Average ACT"}
+        if(d=="CCR"){return "X-axis: College/Career Readiness"}
+        if(d=="TOT_REV_PER_PUPIL"){return "X-axis: Total Revenue Per Pupil"}
+        if(d=="AVG_TEACHER_SALARY"){return "X-axis: Average Teacher Salary"}
+        if(d=="AVG_PRINCIPAL_SALARY"){return "X-axis: Average Principal Salary"}})
 
-var dropdownY=d3.select("#selectY")
-                .on("change", dropdownChangeY)
+var dropdownY=d3.select("body")
+    .append("select")
+    .attr("id", "selectY")
+    .on("change", dropdownChangeY)
 
 dropdownY.selectAll("option")
   .data(choices)
@@ -863,13 +863,13 @@ dropdownY.selectAll("option")
   .append("option")
   .attr("value", function(d){return d})
   .attr("label", function(d){
-    if(d=="GRAD_RATE") {return "Graduation Rate"}
-    if(d=="ATT_RATE"){return "Attendance Rate"}
-    if(d=="AVG_ACT"){return "Average ACT"}
-    if(d=="CCR"){return "College/Career Readiness"}
-    if(d=="TOT_REV_PER_PUPIL"){return "Total Revenue Per Pupil"}
-    if(d=="AVG_TEACHER_SALARY"){return "Average Teacher Salary"}
-    if(d=="AVG_PRINCIPAL_SALARY"){return "Average Principal Salary"}
+    if(d=="GRAD_RATE") {return "Y-axis: Graduation Rate"}
+    if(d=="ATT_RATE"){return "Y-axis: Attendance Rate"}
+    if(d=="AVG_ACT"){return "Y-axis: Average ACT"}
+    if(d=="CCR"){return "Y-axis: College/Career Readiness"}
+    if(d=="TOT_REV_PER_PUPIL"){return "Y-axis: Total Revenue Per Pupil"}
+    if(d=="AVG_TEACHER_SALARY"){return "Y-axis: Average Teacher Salary"}
+    if(d=="AVG_PRINCIPAL_SALARY"){return "Y-axis: Average Principal Salary"}
   })
 
 
@@ -887,7 +887,7 @@ var plot=svg.append("g")
             .attr("height", screen.height-margins.top-margins.bottom)
             .attr("transform", "translate("+margins.left+","+margins.top+")")
 
-
+//create arrays, x and y, of data based on type selected
 var typeX="GRAD_RATE"
 var typeY="GRAD_RATE"
 var x=[]
@@ -902,6 +902,7 @@ data.features.forEach(function(d){
 data.features.forEach(function(d){
   counties.push(d.properties.NAME)
 })
+//create new array which includes x values and y values as well as each county name
 var coordinates=[x,y, counties]
 
 updateScatter (screen, margins, coordinates, typeX, typeY)
@@ -911,21 +912,29 @@ updateScatter (screen, margins, coordinates, typeX, typeY)
 var updateScatter=function(screen,margins,coordinates, typeX, typeY){
 
 d3.selectAll("#map").selectAll("*").remove()
+//return coordinates to two arrays, x and y, but with floats instead of strings
 var x=[];
 var y=[];
 coordinates[0].forEach(function(d){x.push(parseFloat(d))});
 coordinates[1].forEach(function(d){y.push(parseFloat(d))});
+//find maxes and mins -needed for scales
 var xMax=parseFloat(d3.max(d3.values(x)));
 var xMin=parseFloat(d3.min(d3.values(x)));
 var yMax=parseFloat(d3.max(d3.values(y)));
 var yMin=parseFloat(d3.min(d3.values(y)));
-
+console.log(x, "x")
+console.log(y, "y")
+console.log(coordinates[2], "county")
+//create a long list so that data can be bound to 120 items instead of 2 or 3
 var longList=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-21, 22, 23, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70,
 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108,
 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+console.log(longList, "longlist")
+//map x coordinates, y coordinates, and county name to the list of 120 integers
 var newCoordinates=longList.map(function(d,i){
   return {
     x:coordinates[0][i],
@@ -934,8 +943,9 @@ var newCoordinates=longList.map(function(d,i){
   }
 })
 
-;
+console.log(newCoordinates, "newcoordinates")
 
+;
 
 xScale=d3.scaleLinear()
         .domain([(xMin), (xMax)])
@@ -965,22 +975,23 @@ dots.selectAll("circle")
     .enter()
     .append("circle")
     .attr("cx", function(d){
-      //console.log(xScale(parseInt(d.x)), "xvalues")
       return xScale(parseFloat(d.x))
     })
     .attr("cy", function(d){
-    //  console.log(yScale(parseInt(d.y)), "yvalues")
       return yScale(parseFloat(d.y))})
     .attr("r","5")
     .attr("fill", d3.interpolateBlues([.75]))
     .on("mouseover", function(d){
+      var xPosition=parseFloat(d3.select(this).attr("cx"))
+      var yPosition=parseFloat(d3.select(this).attr("cy"))
         d3.select(this)
           .attr("r","8").attr("fill", d3.interpolateBlues([.95]))
 
         plot2.append("text")
+
             .attr("id", "tooltip")
-            .attr("x", 30)
-            .attr("y", 40)
+            .attr("x", xPosition+15)
+            .attr("y", yPosition+15)
             .attr("font-size", "20px")
             .attr("fill", "black")
             .text(function(newCoordinates){
@@ -1008,6 +1019,7 @@ dots.selectAll("circle")
                     .call(yAxis)
                     .attr("transform", "translate("+yA+","+"10"+")")
 
+//create axes labels based on type
       var choices=["4-year Graduation Rate", "Attendance Rate", "Average ACT Score",
       "College/Career Readiness Percentage",
       "Total Revenue Per Pupil", "Average Teacher Salary",
