@@ -982,20 +982,20 @@ dots.selectAll("circle")
     .attr("r","5")
     .attr("fill", d3.interpolateBlues([.75]))
     .on("mouseover", function(d){
-      var xPosition=parseFloat(d3.select(this).attr("cx"))
-      var yPosition=parseFloat(d3.select(this).attr("cy"))
+      //var xPosition=parseFloat(d3.select(this).attr("cx"))
+    //  var yPosition=parseFloat(d3.select(this).attr("cy"))
         d3.select(this)
           .attr("r","8").attr("fill", d3.interpolateBlues([.95]))
-
-        plot2.append("text")
+        svg.append("text")
 
             .attr("id", "tooltip")
-            .attr("x", xPosition+15)
-            .attr("y", yPosition+15)
+            .attr("x", 400)
+            .attr("y", 380)
+            .attr("text-anchor", "middle")
             .attr("font-size", "20px")
             .attr("fill", "black")
             .text(function(newCoordinates){
-              return d.county
+              return d.county+(" County")
             })
             })
       .on("mouseout", function(d){
