@@ -204,6 +204,30 @@ var findStrokes=function(d,type2){
 
   return colors2(value)
 }
+
+var findSecondText=function(d,type2){
+  if(type2=="GRAD_RATE"){
+    return "Graduation Rate: "+d.properties.info.GRAD_RATE+"%"
+  }
+  if(type2=="ATT_RATE"){
+    return "Attendance Rate: "+d.properties.info.ATT_RATE+"%"
+  }
+  if(type2=="AVG_ACT"){
+    return "Average ACT: "+d.properties.info.AVG_ACT+" points"
+  }
+  if(type2=="CCR"){
+    return "CCR: "+d.properties.info.CCR+"%"
+  }
+  if(type2=="TOT_REV_PER_PUPIL"){
+    return "Total Revenue per Pupil: $"+d.properties.info.TOT_REV_PER_PUPIL
+  }
+  if(type2=="AVG_TEACHER_SALARY"){
+    return "Average Teacher Salary: $"+d.properties.info.AVG_TEACHER_SALARY
+  }
+  if(type2=="AVG_PRINCIPAL_SALARY"){
+    return "Average Principal Salary: $"+d.properties.info.AVG_PRINCIPAL_SALARY
+  }
+}
 //If statements to update map based on selection
   if (type=="GRAD_RATE")
   {
@@ -216,7 +240,10 @@ var findStrokes=function(d,type2){
       .data(data.features)
       .classed("path", true)
       .attr("d", path)
-      .attr("stroke-width", 3)
+      .attr("stroke-width", function(d){
+        if (type2=="None"){return 1}
+        else{return 3}
+      })
       .attr("stroke", function(d){
         return(findStrokes(d,type2))})
       .attr("fill", function(d,i){
@@ -226,19 +253,34 @@ var findStrokes=function(d,type2){
       .on("mouseover", function(d){
         d3.select(this)
           .attr("stroke-width", 8)
-        var xPosition=parseFloat(d3.select(this).attr("x"))
-        var yPosition=parseFloat(d3.select(this).attr("y"))
-        svg.append("text")
-        .attr("id", "tooltip")
-        .attr("x", 30)
-        .attr("y", 40)
-        .attr("font-size", "20px")
-        .attr("fill", "black")
-        .text(d.properties.NAME+": "+d.properties.info.GRAD_RATE+"%")
+          svg.append("text")
+          .attr("id", "tooltip")
+          .attr("x", 30)
+          .attr("y", 40)
+          .attr("font-size", "25px")
+          .attr("fill", "black")
+          .text(d.properties.NAME+" County")
+
+          svg.append("text")
+          .attr("id", "tooltip")
+          .attr("x", 30)
+          .attr("y", 70)
+          .attr("font-size", "20px")
+          .text("Graduation Rate: "+d.properties.info.GRAD_RATE+"%")
+
+          svg.append("text")
+          .attr("id", "tooltip")
+          .attr("x", 30)
+          .attr("y", 95)
+          .text(findSecondText(d,type2))
       })
+
       .on("mouseout", function(d){
         d3.selectAll("#tooltip").remove()
-        d3.select(this).attr("stroke-width", 3)
+        d3.select(this)
+        .attr("stroke-width", function(d){
+          if (type2=="None"){return 1}
+          else{return 3}})
       })
 
 
@@ -254,6 +296,9 @@ if(type=="ATT_RATE"){
     .data(data.features)
     .classed("path", true)
     .attr("d", path)
+    .attr("stroke-width", function(d){
+      if (type2=="None"){return 1}
+      else{return 3}})
     .attr("stroke", function(d){
       return(findStrokes(d,type2))})
     .attr("fill", function(d,i){
@@ -264,7 +309,9 @@ if(type=="ATT_RATE"){
 
     .on("mouseover", function(d){
       d3.select(this)
-        .attr("stroke-width", 5)
+      .attr("stroke-width", function(d){
+        if (type2=="None"){return 3}
+        else{return 5}})
         svg.append("text")
         .attr("id", "tooltip")
         .attr("x", 30)
@@ -279,10 +326,19 @@ if(type=="ATT_RATE"){
         .attr("y", 70)
         .attr("font-size", "20px")
         .text("Attendance Rate: "+d.properties.info.ATT_RATE+"%")
+
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 95)
+        .text(findSecondText(d,type2))
     })
     .on("mouseout", function(d){
       d3.selectAll("#tooltip").remove()
-      d3.select(this).attr("stroke-width", 1)
+      d3.select(this)
+      .attr("stroke-width", function(d){
+      if (type2=="None"){return 1}
+      else{return 3}})
     })
 }
 if(type=="AVG_ACT"){
@@ -293,6 +349,9 @@ if(type=="AVG_ACT"){
     .data(data.features)
     .classed("path", true)
     .attr("d", path)
+    .attr("stroke-width", function(d){
+      if (type2=="None"){return 1}
+      else{return 3}})
     .attr("stroke", function(d){
       return(findStrokes(d,type2))})
     .attr("id", function(d,i){
@@ -305,7 +364,9 @@ if(type=="AVG_ACT"){
     })
     .on("mouseover", function(d){
       d3.select(this)
-        .attr("stroke-width", 5)
+      .attr("stroke-width", function(d){
+        if (type2=="None"){return 3}
+        else{return 5}})
         svg.append("text")
         .attr("id", "tooltip")
         .attr("x", 30)
@@ -320,10 +381,19 @@ if(type=="AVG_ACT"){
         .attr("y", 70)
         .attr("font-size", "20px")
         .text("Average ACT: "+d.properties.info.AVG_ACT+" points")
+
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 95)
+        .text(findSecondText(d,type2))
     })
     .on("mouseout", function(d){
       d3.selectAll("#tooltip").remove()
-      d3.select(this).attr("stroke-width", 1)
+      d3.select(this)
+      .attr("stroke-width", function(d){
+        if (type2=="None"){return 1}
+        else{return 3}})
     })
 }
 if(type=="CCR"){
@@ -334,6 +404,9 @@ if(type=="CCR"){
     .data(data.features)
     .classed("path", true)
     .attr("d", path)
+    .attr("stroke-width", function(d){
+      if (type2=="None"){return 1}
+      else{return 3}})
     .attr("stroke", function(d){
       return(findStrokes(d,type2))})
     .attr("id", function(d,i){
@@ -346,7 +419,9 @@ if(type=="CCR"){
     })
     .on("mouseover", function(d){
       d3.select(this)
-        .attr("stroke-width", 5)
+      .attr("stroke-width", function(d){
+        if (type2=="None"){return 3}
+        else{return 5}})
         svg.append("text")
         .attr("id", "tooltip")
         .attr("x", 30)
@@ -361,10 +436,19 @@ if(type=="CCR"){
         .attr("y", 70)
         .attr("font-size", "15px")
         .text("College/Career Preparedness Percentage: "+d.properties.info.CCR+"%")
+
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 95)
+        .text(findSecondText(d,type2))
     })
     .on("mouseout", function(d){
       d3.selectAll("#tooltip").remove()
-      d3.select(this).attr("stroke-width", 1)
+      d3.select(this)
+      .attr("stroke-width", function(d){
+        if (type2=="None"){return 1}
+        else{return 3}})
     })
 }
 if(type=="TOT_REV_PER_PUPIL"){
@@ -375,6 +459,9 @@ if(type=="TOT_REV_PER_PUPIL"){
     .data(data.features)
     .classed("path", true)
     .attr("d", path)
+    .attr("stroke-width", function(d){
+      if (type2=="None"){return 1}
+      else{return 3}})
     .attr("stroke", function(d){
       return(findStrokes(d,type2))})
     .attr("id", function(d,i){
@@ -387,7 +474,9 @@ if(type=="TOT_REV_PER_PUPIL"){
     })
     .on("mouseover", function(d){
       d3.select(this)
-        .attr("stroke-width", 5)
+      .attr("stroke-width", function(d){
+        if (type2=="None"){return 3}
+        else{return 5}})
         svg.append("text")
         .attr("id", "tooltip")
         .attr("x", 30)
@@ -402,10 +491,19 @@ if(type=="TOT_REV_PER_PUPIL"){
         .attr("y", 70)
         .attr("font-size", "20px")
         .text("Revenue per Pupil: $"+d.properties.info.TOT_REV_PER_PUPIL)
+
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 95)
+        .text(findSecondText(d,type2))
     })
     .on("mouseout", function(d){
       d3.selectAll("#tooltip").remove()
-      d3.select(this).attr("stroke-width", 1)
+      d3.select(this)
+      .attr("stroke-width", function(d){
+        if (type2=="None"){return 1}
+        else{return 3}})
     })
 }
 if(type=="AVG_TEACHER_SALARY"){
@@ -416,6 +514,9 @@ if(type=="AVG_TEACHER_SALARY"){
     .data(data.features)
     .classed("path", true)
     .attr("d", path)
+    .attr("stroke-width", function(d){
+      if (type2=="None"){return 1}
+      else{return 3}})
     .attr("stroke", function(d){
       return(findStrokes(d,type2))})
     .attr("id", function(d,i){
@@ -428,7 +529,9 @@ if(type=="AVG_TEACHER_SALARY"){
     })
     .on("mouseover", function(d){
       d3.select(this)
-        .attr("stroke-width", 5)
+      .attr("stroke-width", function(d){
+        if (type2=="None"){return 3}
+        else{return 5}})
         svg.append("text")
         .attr("id", "tooltip")
         .attr("x", 30)
@@ -443,10 +546,19 @@ if(type=="AVG_TEACHER_SALARY"){
         .attr("y", 70)
         .attr("font-size", "20px")
         .text("Average Teacher Salary: $"+d.properties.info.AVG_TEACHER_SALARY)
+
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 95)
+        .text(findSecondText(d,type2))
     })
     .on("mouseout", function(d){
       d3.selectAll("#tooltip").remove()
-      d3.select(this).attr("stroke-width", 1)
+      d3.select(this)
+      .attr("stroke-width", function(d){
+        if (type2=="None"){return 1}
+        else{return 3}})
     })
 }
 if(type=="AVG_PRINCIPAL_SALARY"){
@@ -457,6 +569,9 @@ if(type=="AVG_PRINCIPAL_SALARY"){
     .data(data.features)
     .classed("path", true)
     .attr("d", path)
+    .attr("stroke-width", function(d){
+      if (type2=="None"){return 1}
+      else{return 3}})
     .attr("stroke", function(d){
       return(findStrokes(d,type2))})
     .attr("id", function(d,i){
@@ -469,7 +584,9 @@ if(type=="AVG_PRINCIPAL_SALARY"){
     })
     .on("mouseover", function(d){
       d3.select(this)
-        .attr("stroke-width", 5)
+      .attr("stroke-width", function(d){
+        if (type2=="None"){return 3}
+        else{return 5}})
         svg.append("text")
         .attr("id", "tooltip")
         .attr("x", 30)
@@ -484,10 +601,19 @@ if(type=="AVG_PRINCIPAL_SALARY"){
         .attr("y", 70)
         .attr("font-size", "20px")
         .text("Average Principal Salary: $"+d.properties.info.AVG_PRINCIPAL_SALARY)
+
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 95)
+        .text(findSecondText(d,type2))
     })
     .on("mouseout", function(d){
       d3.selectAll("#tooltip").remove()
-      d3.select(this).attr("stroke-width", 1)
+      d3.select(this)
+      .attr("stroke-width", function(d){
+        if (type2=="None"){return 1}
+        else{return 3}})
     })
 }
 
