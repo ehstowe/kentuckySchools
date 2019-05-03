@@ -61,15 +61,20 @@ svg.selectAll("path")
   .on("mouseover", function(d){
     d3.select(this)
       .attr("stroke-width", 5)
-    var xPosition=parseFloat(d3.select(this).attr("x"))
-    var yPosition=parseFloat(d3.select(this).attr("y"))
     svg.append("text")
     .attr("id", "tooltip")
     .attr("x", 30)
     .attr("y", 40)
-    .attr("font-size", "20px")
+    .attr("font-size", "25px")
     .attr("fill", "black")
-    .text(d.properties.NAME+": "+d.properties.info.GRAD_RATE+"%")
+    .text(d.properties.NAME+" County")
+
+    svg.append("text")
+    .attr("id", "tooltip")
+    .attr("x", 30)
+    .attr("y", 70)
+    .attr("font-size", "20px")
+    .text("Graduation Rate: "+d.properties.info.GRAD_RATE+"%")
   })
   .on("mouseout", function(d){
     d3.selectAll("#tooltip").remove()
@@ -79,7 +84,10 @@ svg.selectAll("path")
 updateLegend(geoData, "GRAD_RATE")
 
 //Create dropdown menu
-choices=["GRAD_RATE", "ATT_RATE", "AVG_ACT", "CCR",
+choices1=["GRAD_RATE", "ATT_RATE", "AVG_ACT", "CCR",
+"TOT_REV_PER_PUPIL", "AVG_TEACHER_SALARY", "AVG_PRINCIPAL_SALARY"]
+
+choices2=["None", "GRAD_RATE", "ATT_RATE", "AVG_ACT", "CCR",
 "TOT_REV_PER_PUPIL", "AVG_TEACHER_SALARY", "AVG_PRINCIPAL_SALARY"]
 
 var dropdownChange1=function(){
@@ -89,6 +97,8 @@ var dropdownChange1=function(){
   //var type2=d3.select("#select2").property("value")
   updateMap(geoData, type1, type2, svg)
   updateLegend(geoData, type1)
+  updateLegend2(geoData, type2)
+
 }
 
 var dropdown1=d3.select("body")
@@ -97,7 +107,7 @@ var dropdown1=d3.select("body")
 .on("change", dropdownChange1)
 
 dropdown1.selectAll("option")
-    .data(choices)
+    .data(choices1)
     .enter()
     .append("option")
     .attr("value", function(d){return d})
@@ -117,6 +127,7 @@ dropdown1.selectAll("option")
           //var type2=d3.select("#select2").property("value")
           updateMap(geoData, type1, type2, svg)
           updateLegend(geoData, type1)
+          updateLegend2(geoData, type2)
         }
 
         var dropdown2=d3.select("body")
@@ -125,7 +136,7 @@ dropdown1.selectAll("option")
         .on("change", dropdownChange2)
 
         dropdown2.selectAll("option")
-            .data(choices)
+            .data(choices2)
             .enter()
             .append("option")
             .attr("value", function(d){return d})
@@ -136,12 +147,13 @@ dropdown1.selectAll("option")
                 if(d=="CCR"){return "College/Career Readiness"}
                 if(d=="TOT_REV_PER_PUPIL"){return "Total Revenue Per Pupil"}
                 if(d=="AVG_TEACHER_SALARY"){return "Average Teacher Salary"}
-                if(d=="AVG_PRINCIPAL_SALARY"){return "Average Principal Salary"}})
+                if(d=="AVG_PRINCIPAL_SALARY"){return "Average Principal Salary"}
+                else{return "--None--"}})
 
 var button=d3.select("body")
               .append("button")
               .attr("id", "scatterButton")
-              .text("Draw Scatterplot")
+              .text("View Scatterplot")
               .on("click", function(d){drawScatter(geoData)})
 
 
@@ -159,30 +171,61 @@ var updateMap=function(data, type, type2, svg){
   var path=d3.geoPath()
               .projection(projection)
 
+var findStrokes=function(d,type2){
+  if(type2=="None"){return "#505050"}
+  else if (type2=="ATT_RATE")
+  {var colors2=d3.scaleSequential(d3.interpolateReds)
+    .domain([96,90])
+  var value=d.properties.info.ATT_RATE}
+  else if(type2=="GRAD_RATE")
+  {var colors2=d3.scaleSequential(d3.interpolateReds)
+                .domain([100,85])
+  var value=d.properties.info.GRAD_RATE}
+  else if(type2=="AVG_ACT")
+  {var colors2=d3.scaleSequential(d3.interpolateReds)
+                  .domain([21,17])
+    var value=d.properties.info.AVG_ACT}
+    else if(type2=="CCR")
+    {var colors2=d3.scaleSequential(d3.interpolateReds)
+                    .domain([90,40])
+                  var value=d.properties.info.CCR}
+    else if(type2=="TOT_REV_PER_PUPIL")
+    {var colors2=d3.scaleSequential(d3.interpolateReds)
+    .domain([16000, 11000])
+  var value=d.properties.info.TOT_REV_PER_PUPIL}
+  else if(type2=="AVG_TEACHER_SALARY")
+  {var colors2=d3.scaleSequential(d3.interpolateReds)
+                  .domain([55000,45000])
+    var value=d.properties.info.AVG_TEACHER_SALARY}
+    else if(type2=="AVG_PRINCIPAL_SALARY")
+    {var colors2=d3.scaleSequential(d3.interpolateReds)
+                    .domain([100000,65000])
+                  var value=d.properties.info.AVG_PRINCIPAL_SALARY}
+
+  return colors2(value)
+}
 //If statements to update map based on selection
   if (type=="GRAD_RATE")
   {
+
+
     var colors=d3.scaleSequential(d3.interpolateBlues)
     .domain([100,85])
 
     svg.selectAll("path")
       .data(data.features)
-      .enter()
-      .append("path")
       .classed("path", true)
       .attr("d", path)
+      .attr("stroke-width", 3)
       .attr("stroke", function(d){
-        if (type2=="ATT_RATE")
-        {return "red"}
-        else{return "blue"}
-      })
+        return(findStrokes(d,type2))})
       .attr("fill", function(d,i){
         var value=d.properties.info.GRAD_RATE;
         return colors(value)
       })
       .on("mouseover", function(d){
         d3.select(this)
-          .attr("stroke-width", 5)
+          .attr("stroke-width", 8)
         var xPosition=parseFloat(d3.select(this).attr("x"))
         var yPosition=parseFloat(d3.select(this).attr("y"))
         svg.append("text")
@@ -195,7 +238,7 @@ var updateMap=function(data, type, type2, svg){
       })
       .on("mouseout", function(d){
         d3.selectAll("#tooltip").remove()
-        d3.select(this).attr("stroke-width", 1)
+        d3.select(this).attr("stroke-width", 3)
       })
 
 
@@ -211,7 +254,8 @@ if(type=="ATT_RATE"){
     .data(data.features)
     .classed("path", true)
     .attr("d", path)
-    .attr("stroke", "#505050")
+    .attr("stroke", function(d){
+      return(findStrokes(d,type2))})
     .attr("fill", function(d,i){
       var value=d.properties.info.ATT_RATE;
 
@@ -221,15 +265,20 @@ if(type=="ATT_RATE"){
     .on("mouseover", function(d){
       d3.select(this)
         .attr("stroke-width", 5)
-      var xPosition=parseFloat(d3.select(this).attr("x"))
-      var yPosition=parseFloat(d3.select(this).attr("y"))
-      svg.append("text")
-      .attr("id", "tooltip")
-      .attr("x", 30)
-      .attr("y", 40)
-      .attr("font-size", "20px")
-      .attr("fill", "black")
-      .text(d.properties.NAME+": "+d.properties.info.ATT_RATE+"%")
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 40)
+        .attr("font-size", "25px")
+        .attr("fill", "black")
+        .text(d.properties.NAME+" County")
+
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 70)
+        .attr("font-size", "20px")
+        .text("Attendance Rate: "+d.properties.info.ATT_RATE+"%")
     })
     .on("mouseout", function(d){
       d3.selectAll("#tooltip").remove()
@@ -244,7 +293,8 @@ if(type=="AVG_ACT"){
     .data(data.features)
     .classed("path", true)
     .attr("d", path)
-    .attr("stroke", "#505050")
+    .attr("stroke", function(d){
+      return(findStrokes(d,type2))})
     .attr("id", function(d,i){
       //console.log(i, "i")
       return d
@@ -256,15 +306,20 @@ if(type=="AVG_ACT"){
     .on("mouseover", function(d){
       d3.select(this)
         .attr("stroke-width", 5)
-      var xPosition=parseFloat(d3.select(this).attr("x"))
-      var yPosition=parseFloat(d3.select(this).attr("y"))
-      svg.append("text")
-      .attr("id", "tooltip")
-      .attr("x", 30)
-      .attr("y", 40)
-      .attr("font-size", "20px")
-      .attr("fill", "black")
-      .text(d.properties.NAME+": "+d.properties.info.AVG_ACT)
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 40)
+        .attr("font-size", "25px")
+        .attr("fill", "black")
+        .text(d.properties.NAME+" County")
+
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 70)
+        .attr("font-size", "20px")
+        .text("Average ACT: "+d.properties.info.AVG_ACT+" points")
     })
     .on("mouseout", function(d){
       d3.selectAll("#tooltip").remove()
@@ -279,7 +334,8 @@ if(type=="CCR"){
     .data(data.features)
     .classed("path", true)
     .attr("d", path)
-    .attr("stroke", "#505050")
+    .attr("stroke", function(d){
+      return(findStrokes(d,type2))})
     .attr("id", function(d,i){
       //console.log(i, "i")
       return d
@@ -291,15 +347,20 @@ if(type=="CCR"){
     .on("mouseover", function(d){
       d3.select(this)
         .attr("stroke-width", 5)
-      var xPosition=parseFloat(d3.select(this).attr("x"))
-      var yPosition=parseFloat(d3.select(this).attr("y"))
-      svg.append("text")
-      .attr("id", "tooltip")
-      .attr("x", 30)
-      .attr("y", 40)
-      .attr("font-size", "20px")
-      .attr("fill", "black")
-      .text(d.properties.NAME+": "+d.properties.info.CCR+"%")
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 40)
+        .attr("font-size", "25px")
+        .attr("fill", "black")
+        .text(d.properties.NAME+" County")
+
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 70)
+        .attr("font-size", "15px")
+        .text("College/Career Preparedness Percentage: "+d.properties.info.CCR+"%")
     })
     .on("mouseout", function(d){
       d3.selectAll("#tooltip").remove()
@@ -314,7 +375,8 @@ if(type=="TOT_REV_PER_PUPIL"){
     .data(data.features)
     .classed("path", true)
     .attr("d", path)
-    .attr("stroke", "#505050")
+    .attr("stroke", function(d){
+      return(findStrokes(d,type2))})
     .attr("id", function(d,i){
       //console.log(i, "i")
       return d
@@ -326,15 +388,20 @@ if(type=="TOT_REV_PER_PUPIL"){
     .on("mouseover", function(d){
       d3.select(this)
         .attr("stroke-width", 5)
-      var xPosition=parseFloat(d3.select(this).attr("x"))
-      var yPosition=parseFloat(d3.select(this).attr("y"))
-      svg.append("text")
-      .attr("id", "tooltip")
-      .attr("x", 30)
-      .attr("y", 40)
-      .attr("font-size", "20px")
-      .attr("fill", "black")
-      .text(d.properties.NAME+": $"+d.properties.info.TOT_REV_PER_PUPIL)
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 40)
+        .attr("font-size", "25px")
+        .attr("fill", "black")
+        .text(d.properties.NAME+" County")
+
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 70)
+        .attr("font-size", "20px")
+        .text("Revenue per Pupil: $"+d.properties.info.TOT_REV_PER_PUPIL)
     })
     .on("mouseout", function(d){
       d3.selectAll("#tooltip").remove()
@@ -349,7 +416,8 @@ if(type=="AVG_TEACHER_SALARY"){
     .data(data.features)
     .classed("path", true)
     .attr("d", path)
-    .attr("stroke", "#505050")
+    .attr("stroke", function(d){
+      return(findStrokes(d,type2))})
     .attr("id", function(d,i){
       //console.log(i, "i")
       return d
@@ -361,15 +429,20 @@ if(type=="AVG_TEACHER_SALARY"){
     .on("mouseover", function(d){
       d3.select(this)
         .attr("stroke-width", 5)
-      var xPosition=parseFloat(d3.select(this).attr("x"))
-      var yPosition=parseFloat(d3.select(this).attr("y"))
-      svg.append("text")
-      .attr("id", "tooltip")
-      .attr("x", 30)
-      .attr("y", 40)
-      .attr("font-size", "20px")
-      .attr("fill", "black")
-      .text(d.properties.NAME+": $"+d.properties.info.AVG_TEACHER_SALARY)
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 40)
+        .attr("font-size", "25px")
+        .attr("fill", "black")
+        .text(d.properties.NAME+" County")
+
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 70)
+        .attr("font-size", "20px")
+        .text("Average Teacher Salary: $"+d.properties.info.AVG_TEACHER_SALARY)
     })
     .on("mouseout", function(d){
       d3.selectAll("#tooltip").remove()
@@ -384,7 +457,8 @@ if(type=="AVG_PRINCIPAL_SALARY"){
     .data(data.features)
     .classed("path", true)
     .attr("d", path)
-    .attr("stroke", "#505050")
+    .attr("stroke", function(d){
+      return(findStrokes(d,type2))})
     .attr("id", function(d,i){
       //console.log(i, "i")
       return d
@@ -396,15 +470,20 @@ if(type=="AVG_PRINCIPAL_SALARY"){
     .on("mouseover", function(d){
       d3.select(this)
         .attr("stroke-width", 5)
-      var xPosition=parseFloat(d3.select(this).attr("x"))
-      var yPosition=parseFloat(d3.select(this).attr("y"))
-      svg.append("text")
-      .attr("id", "tooltip")
-      .attr("x", 30)
-      .attr("y", 40)
-      .attr("font-size", "20px")
-      .attr("fill", "black")
-      .text(d.properties.NAME+": $"+d.properties.info.AVG_PRINCIPAL_SALARY)
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 40)
+        .attr("font-size", "25px")
+        .attr("fill", "black")
+        .text(d.properties.NAME+" County")
+
+        svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", 30)
+        .attr("y", 70)
+        .attr("font-size", "20px")
+        .text("Average Principal Salary: $"+d.properties.info.AVG_PRINCIPAL_SALARY)
     })
     .on("mouseout", function(d){
       d3.selectAll("#tooltip").remove()
@@ -661,6 +740,8 @@ var drawScatter=function(data){
 d3.selectAll("#select1").remove()
 d3.selectAll("#select2").remove()
 d3.selectAll("#scatterButton").remove()
+d3.select("#scale").selectAll("*").remove()
+d3.select("#scale2").selectAll("*").remove()
 
 d3.select("body")
 .append("button")
@@ -974,4 +1055,244 @@ dots.selectAll("circle")
             else if (typeY=="AVG_PRINCIPAL_SALARY"){return "Average Principal Salary"}
             })
 
+}
+
+var updateLegend2=function(geoData, type){
+  d3.select("#scale2").selectAll("*").remove()
+var width="100";
+var height="25";
+if (type=="GRAD_RATE"){
+  var colors=d3.scaleSequential(d3.interpolateReds)
+  .domain([100,85])
+var legendBoxes=["85", "87","90","93", "95","98", "100"]
+svg=d3.select("#scale2")
+console.log(svg, "svg")
+svg.selectAll("rect")
+  .data(legendBoxes)
+  .enter()
+  .append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("x", function(d,i){
+    return (width*i+50)
+  })
+  .attr("y", function(d,i){
+    return "20"
+  })
+  .attr("fill", function(d){
+    return colors(d)
+  })
+svg.selectAll("text")
+  .data(legendBoxes)
+  .enter()
+  .append("text")
+  .attr("id", "grad_rate")
+  .attr("x", function(d,i){
+      return (width*i+85)
+    })
+  .attr("y", function(d,i){
+    return "65"
+  })
+  .text(function(d){return d})
+  .attr("fill", "black")
+}
+else if(type=="ATT_RATE"){
+  var colors=d3.scaleSequential(d3.interpolateReds)
+  .domain([96,90])
+var legendBoxes=["90", "91","92","93", "94","95", "96"]
+svg=d3.select("#scale2")
+svg.selectAll("rect")
+  .data(legendBoxes)
+  .enter()
+  .append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("x", function(d,i){
+    return (width*i+50)
+  })
+  .attr("y", function(d,i){
+    return "20"
+  })
+  .attr("fill", function(d){
+    return colors(d)
+  })
+svg.selectAll("text")
+  .data(legendBoxes)
+  .enter()
+  .append("text")
+  .classed("legend", true)
+  .attr("x", function(d,i){
+      return (width*i+85)
+    })
+  .attr("y", function(d,i){
+    return "65"
+  })
+  .text(function(d){return d})
+
+
+}
+else if(type=="AVG_ACT"){
+  var colors=d3.scaleSequential(d3.interpolateReds)
+  .domain([21,17])
+var legendBoxes=["17", "18","19","20", "21"]
+svg=d3.select("#scale2")
+svg.selectAll("rect")
+  .data(legendBoxes)
+  .enter()
+  .append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("x", function(d,i){
+    return (width*i+50)
+  })
+  .attr("y", function(d,i){
+    return "20"
+  })
+  .attr("fill", function(d){
+    return colors(d)
+  })
+svg.selectAll("text")
+  .data(legendBoxes)
+  .enter()
+  .append("text")
+  .attr("x", function(d,i){
+      return (width*i+85)
+    })
+  .attr("y", function(d,i){
+    return "65"
+  })
+  .text(function(d){return d})
+}
+else if(type=="TOT_REV_PER_PUPIL"){
+  var colors=d3.scaleSequential(d3.interpolateReds)
+  .domain([16000,11000])
+var legendBoxes=["11,000","12000","13000","14000", "15000","16000"]
+svg=d3.select("#scale2")
+svg.selectAll("rect")
+  .data(legendBoxes)
+  .enter()
+  .append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("x", function(d,i){
+    return (width*i+50)
+  })
+  .attr("y", function(d,i){
+    return "20"
+  })
+  .attr("fill", function(d){
+    return colors(d)
+  })
+svg.selectAll("text")
+  .data(legendBoxes)
+  .enter()
+  .append("text")
+  .attr("x", function(d,i){
+      return (width*i+85)
+    })
+  .attr("y", function(d,i){
+    return "65"
+  })
+  .text(function(d){return d})
+}
+else if(type=="CCR"){
+  var colors=d3.scaleSequential(d3.interpolateReds)
+  .domain([90,40])
+var legendBoxes=["40","50","60","70", "80","90"]
+svg=d3.select("#scale2")
+svg.selectAll("rect")
+  .data(legendBoxes)
+  .enter()
+  .append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("x", function(d,i){
+    return (width*i+50)
+  })
+  .attr("y", function(d,i){
+    return "20"
+  })
+  .attr("fill", function(d){
+    return colors(d)
+  })
+svg.selectAll("text")
+  .data(legendBoxes)
+  .enter()
+  .append("text")
+  .attr("x", function(d,i){
+      return (width*i+85)
+    })
+  .attr("y", function(d,i){
+    return "65"
+  })
+  .text(function(d){return d})
+
+
+}
+else if(type=="AVG_TEACHER_SALARY"){
+  var colors=d3.scaleSequential(d3.interpolateReds)
+  .domain([55000,45000])
+var legendBoxes=["45000","47000","49000","51000", "53000","55000"]
+svg=d3.select("#scale2")
+svg.selectAll("rect")
+  .data(legendBoxes)
+  .enter()
+  .append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("x", function(d,i){
+    return (width*i+50)
+  })
+  .attr("y", function(d,i){
+    return "20"
+  })
+  .attr("fill", function(d){
+    return colors(d)
+  })
+svg.selectAll("text")
+  .data(legendBoxes)
+  .enter()
+  .append("text")
+  .attr("x", function(d,i){
+      return (width*i+75)
+    })
+  .attr("y", function(d,i){
+    return "65"
+  })
+  .text(function(d){return d})
+}
+else if(type=="AVG_PRINCIPAL_SALARY"){
+  var colors=d3.scaleSequential(d3.interpolateReds)
+  .domain([100000,60000])
+var legendBoxes=["60000","70000","80000","90000", "100000"]
+svg=d3.select("#scale2")
+svg.selectAll("rect")
+  .data(legendBoxes)
+  .enter()
+  .append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("x", function(d,i){
+    return (width*i+50)
+  })
+  .attr("y", function(d,i){
+    return "20"
+  })
+  .attr("fill", function(d){
+    return colors(d)
+  })
+svg.selectAll("text")
+  .data(legendBoxes)
+  .enter()
+  .append("text")
+  .attr("x", function(d,i){
+      return (width*i+75)
+    })
+  .attr("y", function(d,i){
+    return "65"
+  })
+  .text(function(d){return d})
+
+
+}
 }
