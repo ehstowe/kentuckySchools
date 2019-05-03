@@ -44,7 +44,7 @@ var path=d3.geoPath()
             .projection(projection)
 
 var colors=d3.scaleSequential(d3.interpolateBlues)
-            .domain([100,85])
+            .domain([16000,11000])
 
 svg.selectAll("path")
   .data(geoData.features)
@@ -54,7 +54,7 @@ svg.selectAll("path")
   .attr("d", path)
   .attr("stroke", "#505050")
   .attr("fill", function(d){
-    var value=d.properties.info.GRAD_RATE;
+    var value=d.properties.info.TOT_REV_PER_PUPIL;
     return colors(value)
   })
 
@@ -74,21 +74,21 @@ svg.selectAll("path")
     .attr("x", 30)
     .attr("y", 70)
     .attr("font-size", "20px")
-    .text("Graduation Rate: "+d.properties.info.GRAD_RATE+"%")
+    .text("Revenue per Pupil: "+"$"+d.properties.info.TOT_REV_PER_PUPIL)
   })
   .on("mouseout", function(d){
     d3.selectAll("#tooltip").remove()
     d3.select(this).attr("stroke-width", 1)
   })
 
-updateLegend(geoData, "GRAD_RATE")
+updateLegend(geoData, "TOT_REV_PER_PUPIL")
 
 //Create dropdown menu
-choices1=["GRAD_RATE", "ATT_RATE", "AVG_ACT", "CCR",
-"TOT_REV_PER_PUPIL", "AVG_TEACHER_SALARY", "AVG_PRINCIPAL_SALARY"]
+choices1=["TOT_REV_PER_PUPIL", "GRAD_RATE", "ATT_RATE", "AVG_ACT", "CCR",
+"AVG_TEACHER_SALARY", "AVG_PRINCIPAL_SALARY"]
 
-choices2=["None", "GRAD_RATE", "ATT_RATE", "AVG_ACT", "CCR",
-"TOT_REV_PER_PUPIL", "AVG_TEACHER_SALARY", "AVG_PRINCIPAL_SALARY"]
+choices2=["None", "TOT_REV_PER_PUPIL", "GRAD_RATE", "ATT_RATE", "AVG_ACT", "CCR",
+"AVG_TEACHER_SALARY", "AVG_PRINCIPAL_SALARY"]
 
 var dropdownChange1=function(){
   var type1=d3.select(this).property("value")
@@ -116,7 +116,7 @@ dropdown1.selectAll("option")
         if(d=="ATT_RATE"){return "Attendance Rate"}
         if(d=="AVG_ACT"){return "Average ACT"}
         if(d=="CCR"){return "College/Career Readiness"}
-        if(d=="TOT_REV_PER_PUPIL"){return "Total Revenue Per Pupil"}
+        if(d=="TOT_REV_PER_PUPIL"){return "Revenue Per Pupil"}
         if(d=="AVG_TEACHER_SALARY"){return "Average Teacher Salary"}
         if(d=="AVG_PRINCIPAL_SALARY"){return "Average Principal Salary"}})
 
@@ -145,7 +145,7 @@ dropdown1.selectAll("option")
                 if(d=="ATT_RATE"){return "Attendance Rate"}
                 if(d=="AVG_ACT"){return "Average ACT"}
                 if(d=="CCR"){return "College/Career Readiness"}
-                if(d=="TOT_REV_PER_PUPIL"){return "Total Revenue Per Pupil"}
+                if(d=="TOT_REV_PER_PUPIL"){return "Revenue Per Pupil"}
                 if(d=="AVG_TEACHER_SALARY"){return "Average Teacher Salary"}
                 if(d=="AVG_PRINCIPAL_SALARY"){return "Average Principal Salary"}
                 else{return "--None--"}})
@@ -219,7 +219,7 @@ var findSecondText=function(d,type2){
     return "CCR: "+d.properties.info.CCR+"%"
   }
   if(type2=="TOT_REV_PER_PUPIL"){
-    return "Total Revenue per Pupil: $"+d.properties.info.TOT_REV_PER_PUPIL
+    return "Revenue per Pupil: $"+d.properties.info.TOT_REV_PER_PUPIL
   }
   if(type2=="AVG_TEACHER_SALARY"){
     return "Average Teacher Salary: $"+d.properties.info.AVG_TEACHER_SALARY
@@ -729,7 +729,7 @@ var updateLegend=function(geoData, type){
   else if(type=="TOT_REV_PER_PUPIL"){
     var colors=d3.scaleSequential(d3.interpolateBlues)
     .domain([16000,11000])
-  var legendBoxes=["11,000","12000","13000","14000", "15000","16000"]
+  var legendBoxes=["11000","12000","13000","14000", "15000","16000"]
   svg=d3.select("#scale")
   svg.selectAll("rect")
     .data(legendBoxes)
@@ -877,8 +877,8 @@ d3.select("body")
 
 
 //Create dropdown
-      choices=["GRAD_RATE", "ATT_RATE", "AVG_ACT", "CCR",
-    "TOT_REV_PER_PUPIL", "AVG_TEACHER_SALARY", "AVG_PRINCIPAL_SALARY"]
+      choices=["TOT_REV_PER_PUPIL", "GRAD_RATE", "ATT_RATE", "AVG_ACT", "CCR",
+    "AVG_TEACHER_SALARY", "AVG_PRINCIPAL_SALARY"]
 
 var dropdownChangeX=function(){
   var typeX=d3.select(this).property("value")
@@ -978,7 +978,7 @@ dropdownX.selectAll("option")
         if(d=="ATT_RATE"){return "X-axis: Attendance Rate"}
         if(d=="AVG_ACT"){return "X-axis: Average ACT"}
         if(d=="CCR"){return "X-axis: College/Career Readiness"}
-        if(d=="TOT_REV_PER_PUPIL"){return "X-axis: Total Revenue Per Pupil"}
+        if(d=="TOT_REV_PER_PUPIL"){return "X-axis: Revenue Per Pupil"}
         if(d=="AVG_TEACHER_SALARY"){return "X-axis: Average Teacher Salary"}
         if(d=="AVG_PRINCIPAL_SALARY"){return "X-axis: Average Principal Salary"}})
 
@@ -997,7 +997,7 @@ dropdownY.selectAll("option")
     if(d=="ATT_RATE"){return "Y-axis: Attendance Rate"}
     if(d=="AVG_ACT"){return "Y-axis: Average ACT"}
     if(d=="CCR"){return "Y-axis: College/Career Readiness"}
-    if(d=="TOT_REV_PER_PUPIL"){return "Y-axis: Total Revenue Per Pupil"}
+    if(d=="TOT_REV_PER_PUPIL"){return "Y-axis: Revenue Per Pupil"}
     if(d=="AVG_TEACHER_SALARY"){return "Y-axis: Average Teacher Salary"}
     if(d=="AVG_PRINCIPAL_SALARY"){return "Y-axis: Average Principal Salary"}
   })
@@ -1018,16 +1018,16 @@ var plot=svg.append("g")
             .attr("transform", "translate("+margins.left+","+margins.top+")")
 
 //create arrays, x and y, of data based on type selected
-var typeX="GRAD_RATE"
-var typeY="GRAD_RATE"
+var typeX="TOT_REV_PER_PUPIL"
+var typeY="TOT_REV_PER_PUPIL"
 var x=[]
 var y=[]
 var counties=[]
 data.features.forEach(function(d){
-  x.push(d.properties.info.GRAD_RATE)
+  x.push(d.properties.info.TOT_REV_PER_PUPIL)
 })
 data.features.forEach(function(d){
-  y.push(d.properties.info.GRAD_RATE)
+  y.push(d.properties.info.TOT_REV_PER_PUPIL)
 })
 data.features.forEach(function(d){
   counties.push(d.properties.NAME)
@@ -1149,7 +1149,7 @@ dots.selectAll("circle")
 //create axes labels based on type
       var choices=["4-year Graduation Rate", "Attendance Rate", "Average ACT Score",
       "College/Career Readiness Percentage",
-      "Total Revenue Per Pupil", "Average Teacher Salary",
+      "Revenue Per Pupil", "Average Teacher Salary",
       "Average Principal Salary"]
 
       svg.append("text")
@@ -1161,7 +1161,7 @@ dots.selectAll("circle")
             else if (typeX=="ATT_RATE"){return "Attendance Rate"}
             else if (typeX=="AVG_ACT"){return "Average ACT Score"}
             else if (typeX=="CCR"){return "College/Career Readiness Percentage"}
-            else if (typeX=="TOT_REV_PER_PUPIL"){return "Total Revenue Per Pupil"}
+            else if (typeX=="TOT_REV_PER_PUPIL"){return "Revenue Per Pupil"}
             else if (typeX=="AVG_TEACHER_SALARY"){return "Average Teacher Salary"}
             else if (typeX=="AVG_PRINCIPAL_SALARY"){return "Average Principal Salary"}
             })
@@ -1176,7 +1176,7 @@ dots.selectAll("circle")
             else if (typeY=="ATT_RATE"){return "Attendance Rate"}
             else if (typeY=="AVG_ACT"){return "Average ACT Score"}
             else if (typeY=="CCR"){return "College/Career Readiness Percentage"}
-            else if (typeY=="TOT_REV_PER_PUPIL"){return "Total Revenue Per Pupil"}
+            else if (typeY=="TOT_REV_PER_PUPIL"){return "Revenue Per Pupil"}
             else if (typeY=="AVG_TEACHER_SALARY"){return "Average Teacher Salary"}
             else if (typeY=="AVG_PRINCIPAL_SALARY"){return "Average Principal Salary"}
             })
@@ -1219,7 +1219,7 @@ svg.selectAll("text")
   .attr("y", function(d,i){
     return "65"
   })
-  .text(function(d){return d})
+  .text(function(d){return d+"%"})
   .attr("fill", "black")
 }
 else if(type=="ATT_RATE"){
@@ -1253,7 +1253,7 @@ svg.selectAll("text")
   .attr("y", function(d,i){
     return "65"
   })
-  .text(function(d){return d})
+  .text(function(d){return d+"%"})
 
 
 }
@@ -1292,7 +1292,7 @@ svg.selectAll("text")
 else if(type=="TOT_REV_PER_PUPIL"){
   var colors=d3.scaleSequential(d3.interpolateReds)
   .domain([16000,11000])
-var legendBoxes=["11,000","12000","13000","14000", "15000","16000"]
+var legendBoxes=["11000","12000","13000","14000", "15000","16000"]
 svg=d3.select("#scale2")
 svg.selectAll("rect")
   .data(legendBoxes)
@@ -1319,7 +1319,7 @@ svg.selectAll("text")
   .attr("y", function(d,i){
     return "65"
   })
-  .text(function(d){return d})
+  .text(function(d){return "$"+d})
 }
 else if(type=="CCR"){
   var colors=d3.scaleSequential(d3.interpolateReds)
@@ -1351,7 +1351,7 @@ svg.selectAll("text")
   .attr("y", function(d,i){
     return "65"
   })
-  .text(function(d){return d})
+  .text(function(d){return d+"%"})
 
 
 }
@@ -1385,7 +1385,7 @@ svg.selectAll("text")
   .attr("y", function(d,i){
     return "65"
   })
-  .text(function(d){return d})
+  .text(function(d){return "$"+d})
 }
 else if(type=="AVG_PRINCIPAL_SALARY"){
   var colors=d3.scaleSequential(d3.interpolateReds)
@@ -1417,7 +1417,7 @@ svg.selectAll("text")
   .attr("y", function(d,i){
     return "65"
   })
-  .text(function(d){return d})
+  .text(function(d){return "$"+d})
 
 
 }
