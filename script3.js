@@ -36,9 +36,9 @@ var svg=d3.select("#map")
             .attr("width", screen.width)
             .attr("height", screen.height);
 
-var projection=d3.geoAlbersUsa()
-              .translate([-650, 125])
-              .scale([7000])
+var projection=d3.geoMercator()
+            .scale([5750])
+            .center([-85,37.25])
 
 var path=d3.geoPath()
             .projection(projection)
@@ -83,9 +83,9 @@ choices=["GRAD_RATE", "ATT_RATE", "AVG_ACT", "CCR",
 "TOT_REV_PER_PUPIL", "AVG_TEACHER_SALARY", "AVG_PRINCIPAL_SALARY"]
 
 var dropdownChange1=function(){
-  console.log("made it")
   var type1=d3.select(this).property("value")
   var type2=d3.select("#select2").property("value")
+
   //var type2=d3.select("#select2").property("value")
   updateMap(geoData, type1, type2, svg)
   updateLegend(geoData, type1)
@@ -111,9 +111,9 @@ dropdown1.selectAll("option")
         if(d=="AVG_PRINCIPAL_SALARY"){return "Average Principal Salary"}})
 
         var dropdownChange2=function(){
-          console.log("made it")
-          var type1=d3.select("#select1").property("value")
           var type2=d3.select(this).property("value")
+          var type1=d3.select("#select1").property("value")
+
           //var type2=d3.select("#select2").property("value")
           updateMap(geoData, type1, type2, svg)
           updateLegend(geoData, type1)
@@ -122,7 +122,7 @@ dropdown1.selectAll("option")
         var dropdown2=d3.select("body")
         .append("select")
         .attr("id", "select2")
-        .on("change", dropdownChange1)
+        .on("change", dropdownChange2)
 
         dropdown2.selectAll("option")
             .data(choices)
@@ -148,10 +148,12 @@ var button=d3.select("body")
   }
 
 var updateMap=function(data, type, type2, svg){
-  console.log(type, "type")
-  var projection=d3.geoAlbersUsa()
-                .translate([-650, 125])
-                .scale([7000])
+  console.log(type, "type1")
+  console.log(type2, "type2")
+
+  var projection=d3.geoMercator()
+              .scale([5750])
+              .center([-85,37.25])
 
 
   var path=d3.geoPath()
@@ -204,7 +206,7 @@ if(type=="ATT_RATE"){
   var colors=d3.scaleSequential(d3.interpolateBlues)
   .domain([96,90])
 //console.log(path, "path")
-console.log(data.features, "dat")
+
   svg.selectAll("path")
     .data(data.features)
     .classed("path", true)
@@ -212,7 +214,7 @@ console.log(data.features, "dat")
     .attr("stroke", "#505050")
     .attr("fill", function(d,i){
       var value=d.properties.info.ATT_RATE;
-      console.log(value, "value")
+
       return colors(value)
     })
 
@@ -449,7 +451,7 @@ var updateLegend=function(geoData, type){
     .attr("y", function(d,i){
       return "65"
     })
-    .text(function(d){return d})
+    .text(function(d){return d+"%"})
     .attr("fill", "black")
   }
   else if(type=="ATT_RATE"){
@@ -483,7 +485,7 @@ var updateLegend=function(geoData, type){
     .attr("y", function(d,i){
       return "65"
     })
-    .text(function(d){return d})
+    .text(function(d){return d+"%"})
 
 
   }
@@ -517,7 +519,7 @@ var updateLegend=function(geoData, type){
     .attr("y", function(d,i){
       return "65"
     })
-    .text(function(d){return d})
+    .text(function(d){return d+"%"})
   }
   else if(type=="TOT_REV_PER_PUPIL"){
     var colors=d3.scaleSequential(d3.interpolateBlues)
@@ -549,7 +551,7 @@ var updateLegend=function(geoData, type){
     .attr("y", function(d,i){
       return "65"
     })
-    .text(function(d){return d})
+    .text(function(d){return "$"+d})
   }
   else if(type=="CCR"){
     var colors=d3.scaleSequential(d3.interpolateBlues)
@@ -581,7 +583,7 @@ var updateLegend=function(geoData, type){
     .attr("y", function(d,i){
       return "65"
     })
-    .text(function(d){return d})
+    .text(function(d){return d+"%"})
 
 
   }
@@ -615,7 +617,7 @@ var updateLegend=function(geoData, type){
     .attr("y", function(d,i){
       return "65"
     })
-    .text(function(d){return d})
+    .text(function(d){return "$"+d})
   }
   else if(type=="AVG_PRINCIPAL_SALARY"){
     var colors=d3.scaleSequential(d3.interpolateBlues)
@@ -647,7 +649,7 @@ var updateLegend=function(geoData, type){
     .attr("y", function(d,i){
       return "65"
     })
-    .text(function(d){return d})
+    .text(function(d){return "$"+d})
 
 
   }
@@ -663,7 +665,7 @@ d3.selectAll("#scatterButton").remove()
 d3.select("body")
 .append("button")
 .attr("id", "mapButton")
-.text("Map")
+.text("Return to Map")
 .on("click", function(d){drawMap(data)})
 
 
@@ -749,7 +751,7 @@ var dropdownChangeY=function(){
     counties.push(d.properties.NAME)
   })
   var coordinates=[x,y, counties]
-  console.log(coordinates, "ycoor")
+
 
 updateScatter (screen, margins, coordinates, typeX, typeY)
 }
@@ -843,9 +845,7 @@ var xMax=parseFloat(d3.max(d3.values(x)));
 var xMin=parseFloat(d3.min(d3.values(x)));
 var yMax=parseFloat(d3.max(d3.values(y)));
 var yMin=parseFloat(d3.min(d3.values(y)));
-console.log(x, "x")
-console.log(y, "y")
-console.log(coordinates[2], "county")
+
 //create a long list so that data can be bound to 120 items instead of 2 or 3
 var longList=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
@@ -854,7 +854,7 @@ var longList=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 
 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108,
 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
-console.log(longList, "longlist")
+
 //map x coordinates, y coordinates, and county name to the list of 120 integers
 var newCoordinates=longList.map(function(d,i){
   return {
@@ -864,7 +864,6 @@ var newCoordinates=longList.map(function(d,i){
   }
 })
 
-console.log(newCoordinates, "newcoordinates")
 
 ;
 
